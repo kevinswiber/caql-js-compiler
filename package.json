@@ -1,0 +1,24 @@
+{
+  "name": "caql-js-compiler",
+  "version": "0.0.1",
+  "description": "A CaQL compiler that converts queries into executable JavaScript.",
+  "main": "compiler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/kevinswiber/caql-js-compiler.git"
+  },
+  "keywords": [
+    "caql",
+    "calypso",
+    "compiler"
+  ],
+  "author": "Kevin Swiber <kswiber@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kevinswiber/caql-js-compiler/issues"
+  },
+  "homepage": "https://github.com/kevinswiber/caql-js-compiler"
+}
