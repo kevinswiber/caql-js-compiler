@@ -7,6 +7,7 @@ var JSCompiler = module.exports = function() {
   this.filters = [];
   this.sorts = [];
   this.ors = [];
+  this.params = {};
 };
 
 JSCompiler.prototype.compile = function(ql) {
@@ -86,7 +87,7 @@ JSCompiler.prototype.visitLikePredicate = function(like) {
 JSCompiler.prototype.visitComparisonPredicate = function(comparison) {
   if (typeof comparison.value === 'string'
       && comparison.value[0] === '@' && this.params) {
-    comparison.value = this.params[copmarison.value.substring(1)];
+    comparison.value = this.params[comparison.value.substring(1)];
   }
 
   this.addFilter(comparison);
@@ -95,8 +96,11 @@ JSCompiler.prototype.visitComparisonPredicate = function(comparison) {
 JSCompiler.prototype.addFilter = function(predicate) {
   if (typeof predicate.value === 'boolean' || predicate.value == null) {
     predicate.value = predicate.value
-  } else {
-    predicate.value = isNaN(predicate.value) ? predicate.value : parseInt(predicate.value);
+  } else if(!isNaN(predicate.value)) {
+    predicate.value = parseInt(predicate.value);
+  } else if (typeof predicate.value === 'string' && predicate.value[0] !== '"' && predicate.value[0] !== '\'') {
+    // TODO: Use a RegExp.
+    predicate.value = '"' + predicate.value + '"';
   }
 
   var val = JSON.parse(predicate.value);

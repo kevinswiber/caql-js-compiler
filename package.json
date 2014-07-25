@@ -1,6 +1,6 @@
 {
   "name": "caql-js-compiler",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A CaQL compiler that converts queries into executable JavaScript.",
   "main": "compiler.js",
   "scripts": {
