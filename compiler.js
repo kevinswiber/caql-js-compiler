@@ -8,6 +8,7 @@ var JSCompiler = module.exports = function() {
   this.sorts = [];
   this.ors = [];
   this.params = {};
+  this.fieldMap = {};
 };
 
 JSCompiler.prototype.compile = function(ql) {
@@ -33,6 +34,7 @@ JSCompiler.prototype.visitSelectStatement = function(statement) {
 };
 
 JSCompiler.prototype.visitFieldList = function(fieldList) {
+  var self = this;
   this.fields = fieldList.fields;
 };
 
@@ -105,20 +107,26 @@ JSCompiler.prototype.addFilter = function(predicate) {
 
   var val = JSON.parse(predicate.value);
 
+  var field = predicate.field;
+
+  if (this.fieldMap[field]) {
+    field = this.fieldMap[field];
+  }
+
   var expr;
   switch(predicate.operator) {
-    case 'eq': expr = function(value) { return value[predicate.field] == val }; break;
-    case 'lt': expr = function(value) { return value[predicate.field] < val; }; break;
-    case 'lte': expr = function(value) { return value[predicate.field] <= val; }; break;
-    case 'gt': expr = function(value) { return value[predicate.field] > val; }; break;
-    case 'gte': expr = function(value) { return value[predicate.field] >= val; }; break;
-    case 'contains': expr = function(value) { return new RegExp(val, 'i').test(value[predicate.field]); }; break;
-    case 'like': expr = function(value) { return new RegExp(val, 'i').test(value[predicate.field]); }; break;
+    case 'eq': expr = function(value) { return value[field] == val }; break;
+    case 'lt': expr = function(value) { return value[field] < val; }; break;
+    case 'lte': expr = function(value) { return value[field] <= val; }; break;
+    case 'gt': expr = function(value) { return value[field] > val; }; break;
+    case 'gte': expr = function(value) { return value[field] >= val; }; break;
+    case 'contains': expr = function(value) { return new RegExp(val, 'i').test(value[field]); }; break;
+    case 'like': expr = function(value) { return new RegExp(val, 'i').test(value[field]); }; break;
   }
 
   if (predicate.isNegated) {
     if (predicate.operator === 'contains' || predicate.operator === 'like') {
-      expr = function(value) { return new RegExp('^((?!' + val + ').)*$', 'i').test(value[predicate.field]); };
+      expr = function(value) { return new RegExp('^((?!' + val + ').)*$', 'i').test(value[field]); };
     } else {
       var positive = expr;
       expr = function(value) { return !positive(value); };
@@ -149,7 +157,6 @@ JSCompiler.prototype.addFilter = function(predicate) {
       }
     }
   }
-
   if (this.ors.length && (!predicate.expressions || !predicate.dir || predicate.dir === 'right')) {
     var or = this.ors[this.ors.length - 1];
     if (or.value.length < 2) {
@@ -204,6 +211,7 @@ JSCompiler.prototype.filter = function(values) {
 };
 
 JSCompiler.prototype.filterOne = function(value) {
+  var self = this;
   var match = true;
 
   for (var i = 0; i < this.filters.length; i++) {
@@ -223,7 +231,8 @@ JSCompiler.prototype.filterOne = function(value) {
     var result = {};
     this.fields.forEach(function(field) {
       var name = field.alias || field.name;
-      result[name] = value[field.name];
+      var valueName = self.fieldMap[name] || field.name;
+      result[name] = value[valueName];
     });
 
     return result;
