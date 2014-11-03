@@ -99,7 +99,9 @@ JSCompiler.prototype.addFilter = function(predicate) {
   if (typeof predicate.value === 'boolean' || predicate.value == null) {
     predicate.value = predicate.value
   } else if(!isNaN(predicate.value)) {
-    predicate.value = parseInt(predicate.value);
+    predicate.value = (predicate.value % 1 === 0)
+      ? parseInt(predicate.value)
+      : parseFloat(predicate.value);
   } else if (typeof predicate.value === 'string' && predicate.value[0] !== '"' && predicate.value[0] !== '\'') {
     // TODO: Use a RegExp.
     predicate.value = '"' + predicate.value + '"';
