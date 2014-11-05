@@ -95,6 +95,11 @@ JSCompiler.prototype.visitComparisonPredicate = function(comparison) {
   this.addFilter(comparison);
 };
 
+JSCompiler.prototype.visitMissingPredicate = function(missing) {
+  missing.operator = 'missing';
+  this.addFilter(missing);
+};
+
 JSCompiler.prototype.addFilter = function(predicate) {
   if (typeof predicate.value === 'boolean' || predicate.value == null) {
     predicate.value = predicate.value
@@ -107,7 +112,10 @@ JSCompiler.prototype.addFilter = function(predicate) {
     predicate.value = '"' + predicate.value + '"';
   }
 
-  var val = JSON.parse(predicate.value);
+  var val;
+  if (predicate.value !== undefined) {
+    val = JSON.parse(predicate.value);
+  }
 
   var field = predicate.field;
 
@@ -124,6 +132,7 @@ JSCompiler.prototype.addFilter = function(predicate) {
     case 'gte': expr = function(value) { return value[field] >= val; }; break;
     case 'contains': expr = function(value) { return new RegExp(val, 'i').test(value[field]); }; break;
     case 'like': expr = function(value) { return new RegExp(val, 'i').test(value[field]); }; break;
+    case 'missing': expr = function(value) { return !value.hasOwnProperty(field); }; break;
   }
 
   if (predicate.isNegated) {

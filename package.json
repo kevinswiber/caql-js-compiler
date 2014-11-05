@@ -1,6 +1,6 @@
 {
   "name": "caql-js-compiler",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A CaQL compiler that converts queries into executable JavaScript.",
   "main": "compiler.js",
   "scripts": {
@@ -22,6 +22,6 @@
   },
   "homepage": "https://github.com/kevinswiber/caql-js-compiler",
   "dependencies": {
-    "caql": "^0.1.0"
+    "caql": "^0.2.0"
   }
 }
