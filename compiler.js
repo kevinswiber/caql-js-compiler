@@ -152,12 +152,12 @@ JSCompiler.prototype.addFilter = function(predicate) {
   var expr;
   switch(predicate.operator) {
     case 'eq': expr = function(value) { return getField(value, field) == val }; break;
-    case 'lt': expr = function(value) { return value[field] < val; }; break;
-    case 'lte': expr = function(value) { return value[field] <= val; }; break;
-    case 'gt': expr = function(value) { return value[field] > val; }; break;
-    case 'gte': expr = function(value) { return value[field] >= val; }; break;
-    case 'contains': expr = function(value) { return new RegExp(val, 'i').test(value[field]); }; break;
-    case 'like': expr = function(value) { return new RegExp(val, 'i').test(value[field]); }; break;
+    case 'lt': expr = function(value) { return getField(value, field) < val; }; break;
+    case 'lte': expr = function(value) { return getField(value, field) <= val; }; break;
+    case 'gt': expr = function(value) { return getField(value, field) > val; }; break;
+    case 'gte': expr = function(value) { return getField(value, field) >= val; }; break;
+    case 'contains': expr = function(value) { return new RegExp(val, 'i').test(getField(value, field)); }; break;
+    case 'like': expr = function(value) { return new RegExp(val, 'i').test(getField(value, field)); }; break;
     case 'missing': expr = function(value) { return !value.hasOwnProperty(field); }; break;
   }
 
