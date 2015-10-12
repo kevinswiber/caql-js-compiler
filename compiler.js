@@ -123,9 +123,35 @@ JSCompiler.prototype.addFilter = function(predicate) {
     field = this.fieldMap[field];
   }
 
+  function getField(value, field) {
+    if (field.indexOf('.') !== -1) {
+      var current = value;
+      var props = field.split('.');
+      for (var propIndex = 0; propIndex < props.length; propIndex++) {
+        var property = props[propIndex];
+
+        if (propIndex < props.length - 1) {
+          if (current.hasOwnProperty(property)) {
+            current = current[property];
+          } else {
+            current = null;
+          }
+        } else {
+          if (current && current.hasOwnProperty(property)) {
+            current = current[property];
+          }
+        }
+      }
+
+      return current;
+    } else {
+      return value[field];
+    }
+  }
+
   var expr;
   switch(predicate.operator) {
-    case 'eq': expr = function(value) { return value[field] == val }; break;
+    case 'eq': expr = function(value) { return getField(value, field) == val }; break;
     case 'lt': expr = function(value) { return value[field] < val; }; break;
     case 'lte': expr = function(value) { return value[field] <= val; }; break;
     case 'gt': expr = function(value) { return value[field] > val; }; break;
@@ -241,9 +267,31 @@ JSCompiler.prototype.filterOne = function(value) {
 
     var result = {};
     this.fields.forEach(function(field) {
-      var name = field.alias || field.name;
-      var valueName = self.fieldMap[name] || field.name;
-      result[name] = value[valueName];
+      if (field.name.indexOf('.') === -1) {
+        var name = field.alias || field.name;
+        var valueName = self.fieldMap[name] || field.name;
+        result[name] = value[valueName];
+      } else {
+        var currentResult = result;
+        var currentValue = value;
+        var props = field.name.split('.');
+        for (var propIndex = 0; propIndex < props.length; propIndex++) {
+          var property = props[propIndex];
+
+          if (propIndex < props.length - 1) {
+            if (currentValue.hasOwnProperty(props[propIndex])) {
+              if (!currentResult.hasOwnProperty(property)) {
+                currentResult[property] = {};
+              }
+
+              currentResult = currentResult[property];
+              currentValue = currentValue[property];
+            }
+          } else {
+            currentResult[property] = currentValue[property];
+          }
+        }
+      }
     });
 
     return result;
